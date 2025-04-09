@@ -4,13 +4,14 @@ import {
   ExpenseProcessResult,
   MultiExpenseResult,
 } from "../types";
-import { extractExpensesWithAI } from "../services/ai";
+import { extractExpensesWithAI, uploadToGemini } from "../services/ai";
 import { addExpenseToNotion } from "../repositories/expenseRepo";
 import { getAllCategoryNames } from "../repositories/categoryRepo";
 import { getAllAccountNames, findAccountId } from "../repositories/accountRepo";
 import { BOT_MESSAGES } from "../config/constants";
 import { Message, Update } from "@telegraf/types";
 import { messageService } from "../utils/message";
+import { FileData } from "@google/generative-ai";
 
 type MessageContext = NarrowedContext<
   Context<Update>,
@@ -117,7 +118,11 @@ export const expenseController = {
       getAllAccountNames(),
     ]);
 
-    const expenses = await extractExpensesWithAI(message, categories, accounts);
+    const expenses = await extractExpensesWithAI({
+      message,
+      categories,
+      accounts,
+    });
 
     if (!expenses || expenses.length === 0) {
       await ctx.reply(BOT_MESSAGES.NOT_EXPENSE_MESSAGE);
@@ -160,12 +165,32 @@ export const expenseController = {
     const fileLink = await ctx.telegram.getFileLink(photoId);
     const photoUrl = fileLink.href;
 
+    const fetchPhoto = await fetch(photoUrl);
+
+    if (!fetchPhoto.ok) {
+      throw new Error(
+        `Failed to fetch Photo: Status code ${fetchPhoto.status}`,
+      );
+    }
+
+    const photoArrayBuffer = await fetchPhoto.arrayBuffer();
+    const photoBuffer = Buffer.from(photoArrayBuffer);
+
     const [categories, accounts] = await Promise.all([
       getAllCategoryNames(),
       getAllAccountNames(),
     ]);
 
-    const expenses = await extractExpensesWithAI(caption, categories, accounts);
+    const file = await uploadToGemini(photoBuffer, "image/jpeg");
+
+    const fileData: FileData = { mimeType: file.mimeType, fileUri: file.uri };
+
+    const expenses = await extractExpensesWithAI({
+      message: caption,
+      categories,
+      accounts,
+      fileData,
+    });
 
     if (!expenses || expenses.length === 0) {
       await ctx.reply(BOT_MESSAGES.EXPENSE_FAILURE);

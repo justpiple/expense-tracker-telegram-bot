@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { userService } from "../services/user";
 import { userController } from "../controllers/userController";
 import { Telegraf } from "telegraf";
-import { REMINDER_SCHEDULE } from "../config/env";
+import { REMINDER_SCHEDULE, TIME_ZONE } from "../config/env";
 
 /**
  * Setup daily reminder scheduler
@@ -37,7 +37,7 @@ export function setupReminderScheduler(bot: Telegraf) {
       }
     },
     {
-      timezone: "Asia/Jakarta",
+      timezone: TIME_ZONE,
     },
   );
 

@@ -27,6 +27,7 @@ export const NOTION_API_KEY = process.env.NOTION_API_KEY!;
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 export const REGISTER_SECRET_CODE = process.env.REGISTER_SECRET_CODE!;
 export const REMINDER_SCHEDULE = process.env.REMINDER_SCHEDULE;
+export const TIME_ZONE = process.env.TIME_ZONE;
 
 export const NOTION_DB = {
   EXPENSES: process.env.NOTION_DB_EXPENSES!,

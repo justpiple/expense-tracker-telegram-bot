@@ -1,3 +1,5 @@
+import { TIME_ZONE } from "./env";
+
 export const EXPENSE_EXTRACTION_PROMPT = (
   categories: string[],
   accounts: string[],
@@ -6,21 +8,25 @@ Anda adalah sistem yang sangat akurat dalam mengekstrak informasi pengeluaran da
 
 Instruksi:
 1.  Baca pesan teks dengan cermat dan identifikasi semua informasi pengeluaran yang relevan.
-2.  Untuk setiap pengeluaran yang ditemukan, ekstrak detail berikut:
-    * "description": Deskripsi pengeluaran yang jelas dan lengkap.
+2.  Untuk setiap pengeluaran, ekstrak detail berikut:
+    * "description": Deskripsi pengeluaran yang jelas dan lengkap dari gambar atau pesan.
     * "amount": Jumlah pengeluaran dalam angka.
     * "date": Tanggal pengeluaran dalam format YYYY-MM-DD.
-    * "subcategory": Subkategori pengeluaran.
-    * "account": Akun metode pembayaran. Perhatikan ini, misal "Pake cash", "Via GoPay", "Cash", "QRIS BCA", "Pakai Debit", Dan lain-lain.
-3.  **PENTING:** Jika pesan mengandung beberapa pengeluaran, pisahkan setiap pengeluaran menjadi objek terpisah dalam array JSON.
-4.  Perhatikan kata kunci seperti "dan", "serta", "juga", "lalu", "kemudian"untuk mengidentifikasi pengeluaran yang berbeda.
-5.  Jika ada frasa gabungan yang mengindikasikan beberapa pengeluaran, pisahkan menjadi transaksi terpisah.
-6.  Jika pesan tidak mengandung informasi pengeluaran, kembalikan array JSON kosong.
+    * "subcategory": Subkategori pengeluaran. (simpulkan dari deskripsi jika tidak ada)
+    * "account": Akun metode pembayaran. (pilih dari daftar akun pembayaran yang tersedia)
+3.  **PENTING:** Jika pesan mengandung beberapa pengeluaran, pisahkan menjadi objek terpisah dalam array JSON.
+4.  Identifikasi pengeluaran yang berbeda menggunakan kata kunci seperti "dan", "serta", "juga", "lalu", "kemudian" atau frasa gabungan yang mengindikasikan beberapa transaksi.
+5.  Jika pesan tidak mengandung informasi pengeluaran, kembalikan array JSON kosong.
 
 Daftar Kategori (subcategory) yang Tersedia: ${categories.join(", ")}
 Daftar Akun (account) pembayaran yang Tersedia: ${accounts.join(", ")}
 
-INFORMASI TANGGAL HARI INI (Zona Waktu UTC+7): ${new Date().toISOString()}
+Tanggal Hari Ini: ${new Date().toLocaleDateString("en-CA", {
+  timeZone: TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+})}
 
 Contoh Keluaran:
 -   Beberapa pengeluaran:
@@ -29,9 +35,9 @@ Contoh Keluaran:
     {"description":"Biaya parkir","amount":10000,"date":"2025-04-04","subcategory":"Transportation","account":"Cash"}
     ] }
 -   Tunggal:
-    "expenses" : [
+    { "expenses" : [
     {"description" : "beli bensin","amount": 25000, "date" : "2024-01-01", "subcategory" : "Transportation", "account" : "Cash"}
-    ]
+    ] }
 -   Tidak ada pengeluaran:
     { "expenses": [] }
 
@@ -130,7 +136,7 @@ Silakan coba lagi nanti atau hubungi admin.
 Mohon sertakan detail pengeluaran dalam caption foto.
 
 Contoh caption:
-"Beli kopi 25rb di Starbucks pakai BCA"
+"Pakai BCA"
   `,
 
   PHOTO_PROCESSING_ERROR: `
