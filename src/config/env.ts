@@ -11,6 +11,7 @@ const requiredEnvVars = [
   "NOTION_DB_SUBCATEGORIES",
   "NOTION_DB_ACCOUNTS",
   "NOTION_DB_RECURRING_PAYMENTS",
+  "REGISTER_SECRET_CODE",
 ];
 
 const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
@@ -24,6 +25,8 @@ if (missingEnvVars.length > 0) {
 export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
 export const NOTION_API_KEY = process.env.NOTION_API_KEY!;
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
+export const REGISTER_SECRET_CODE = process.env.REGISTER_SECRET_CODE!;
+export const REMINDER_SCHEDULE = process.env.REMINDER_SCHEDULE;
 
 export const NOTION_DB = {
   EXPENSES: process.env.NOTION_DB_EXPENSES!,

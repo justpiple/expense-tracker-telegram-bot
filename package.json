@@ -13,9 +13,11 @@
     "@google/generative-ai": "^0.24.0",
     "@notionhq/client": "^2.3.0",
     "dotenv": "^16.4.7",
+    "node-cron": "^3.0.3",
     "telegraf": "^4.16.3"
   },
   "devDependencies": {
+    "@types/node-cron": "^3.0.11",
     "bun-types": "^1.2.8"
   }
 }
