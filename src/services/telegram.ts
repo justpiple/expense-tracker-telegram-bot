@@ -69,7 +69,7 @@ export function setupBot() {
   setupReminderScheduler(bot);
 
   return bot
-    .launch(() => console.log("Bot is running!"))
+    .launch(() => console.log("Bot is ready and listening for messages!"))
     .catch((err) => {
       console.error("Failed to start bot:", err);
     });

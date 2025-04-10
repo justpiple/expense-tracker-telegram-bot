@@ -4,7 +4,6 @@ async function startApp() {
   try {
     console.log("Starting Expense Tracker Bot...");
     await setupBot();
-    console.log("Bot is ready and listening for messages!");
   } catch (error) {
     console.error("Failed to start the application:", error);
     process.exit(1);
