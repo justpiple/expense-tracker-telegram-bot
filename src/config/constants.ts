@@ -12,11 +12,11 @@ Instruksi:
     * "description": Deskripsi pengeluaran yang jelas dan lengkap dari gambar atau pesan.
     * "amount": Jumlah pengeluaran dalam angka.
     * "date": Tanggal pengeluaran dalam format YYYY-MM-DD.
-    * "subcategory": Subkategori pengeluaran. (simpulkan dari deskripsi jika tidak ada)
-    * "account": Akun metode pembayaran. (pilih dari daftar akun pembayaran yang tersedia)
+    * "subcategory": Subkategori pengeluaran. (Jika ada kategori dalam pesan, simpulkan kategori berdasarkan deskripsi. Apabila tetap tidak cocok, buat kategori baru dengan format: new: Nama Kategori.)
+    * "account": Akun metode pembayaran. (wajib pilih dari daftar akun pembayaran yang tersedia)
 3.  **PENTING:** Jika pesan mengandung beberapa pengeluaran, pisahkan menjadi objek terpisah dalam array JSON.
 4.  Identifikasi pengeluaran yang berbeda menggunakan kata kunci seperti "dan", "serta", "juga", "lalu", "kemudian" atau frasa gabungan yang mengindikasikan beberapa transaksi.
-5.  Jika pesan tidak mengandung informasi pengeluaran, kembalikan array JSON kosong.
+5.  Jika pesan atau gambar tidak mengandung informasi pengeluaran, kembalikan array JSON kosong.
 
 Daftar Kategori (subcategory) yang Tersedia: ${categories.join(", ")}
 Daftar Akun (account) pembayaran yang Tersedia: ${accounts.join(", ")}
