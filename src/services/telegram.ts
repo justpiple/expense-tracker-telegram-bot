@@ -61,19 +61,10 @@ export function setupBot() {
       return ctx.reply("Tidak dapat mengidentifikasi Anda. Silakan coba lagi.");
     }
 
-    const isRegistered = await userService.isUserRegistered(telegramId);
-    if (!isRegistered) {
-      return userController.startRegistration(ctx);
-    }
-
     await expenseController.handleTextMessage(ctx);
   });
 
-  bot.on(
-    message("photo"),
-    isRegisteredUser,
-    expenseController.handlePhotoMessage,
-  );
+  bot.on(message("photo"), expenseController.handlePhotoMessage);
 
   setupReminderScheduler(bot);
 
