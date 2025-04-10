@@ -62,7 +62,7 @@ For each database in your Notion workspace, you need to get its ID:
 
 1. Open the database in your browser
 2. Look at the URL, which will be in this format: `https://www.notion.so/workspace/[database-id]?v=[view-id]`
-3. Copy the `[database-id]` part (it's a 32-character string with hyphens)
+3. Copy the `[database-id]` part (it's a 32-character string)
 4. Add these IDs to your `.env` file for each database:
    - Main expenses database
    - Month database
