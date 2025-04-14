@@ -4,19 +4,19 @@ export const EXPENSE_EXTRACTION_PROMPT = (
   categories: string[],
   accounts: string[],
 ) => `
-Anda adalah sistem yang sangat akurat dalam mengekstrak informasi pengeluaran dari pesan teks.
+Anda adalah sistem yang dapat dalam mengekstrak informasi dari pesan teks atau gambar.
 
 Instruksi:
-1.  Baca pesan teks dengan cermat dan identifikasi semua informasi pengeluaran yang relevan.
+1.  Baca pesan teks dan perhatikan gambar (jika ada) dengan untuk mengidentifikasi semua informasi pengeluaran yang relevan. Jika pesan teks dan gambar diberikan bersamaan, gabungkan informasi dari kedua sumber untuk mendapatkan detail informasi.
 2.  Untuk setiap pengeluaran, ekstrak detail berikut:
     * "description": Deskripsi pengeluaran yang jelas dan lengkap dari gambar atau pesan.
     * "amount": Jumlah pengeluaran dalam angka.
     * "date": Tanggal pengeluaran dalam format YYYY-MM-DD.
     * "subcategory": Subkategori pengeluaran. (Jika ada kategori dalam pesan, simpulkan kategori berdasarkan deskripsi. Apabila tetap tidak cocok, buat kategori baru dengan format: new: Nama Kategori.)
-    * "account": Akun metode pembayaran. (wajib pilih dari daftar akun pembayaran yang tersedia)
+    * "account": Metode pembayaran. Ekstrak informasi metode pembayaran dari pesan teks jika ada dan sesuai dengan daftar yang tersedia. Contoh: jika pesan teks mengatakan 'pakai cash', maka 'account' adalah 'Cash' jika terdapat didaftar akun yang tersedia.
 3.  **PENTING:** Jika pesan mengandung beberapa pengeluaran, pisahkan menjadi objek terpisah dalam array JSON.
 4.  Identifikasi pengeluaran yang berbeda menggunakan kata kunci seperti "dan", "serta", "juga", "lalu", "kemudian" atau frasa gabungan yang mengindikasikan beberapa transaksi.
-5.  Jika pesan atau gambar tidak mengandung informasi pengeluaran, kembalikan array JSON kosong.
+5.  Jika pesan atau gambar tidak mengandung informasi pengeluaran, kembalikan array kosong.
 
 Daftar Kategori (subcategory) yang Tersedia: ${categories.join(", ")}
 Daftar Akun (account) pembayaran yang Tersedia: ${accounts.join(", ")}
@@ -28,18 +28,16 @@ Tanggal Hari Ini: ${new Date().toLocaleDateString("en-CA", {
   day: "2-digit",
 })}
 
-Contoh Keluaran:
+Contoh Output:
 -   Beberapa pengeluaran:
     { "expenses": [
-    {"description":"Beli makan siang","amount":75000,"date":"2025-04-04","subcategory":"Food","account":"GoPay"},
-    {"description":"Biaya parkir","amount":10000,"date":"2025-04-04","subcategory":"Transportation","account":"Cash"}
+    {"description":"Makan siang di Kantin","amount":75000,"date":"2025-04-04","subcategory":"Food","account":"GoPay"},
+    {"description":"Parkir","amount":10000,"date":"2025-04-04","subcategory":"Transportation","account":"Cash"}
     ] }
 -   Tunggal:
     { "expenses" : [
-    {"description" : "beli bensin","amount": 25000, "date" : "2024-01-01", "subcategory" : "Transportation", "account" : "Cash"}
+    {"description" : "Bensin","amount": 25000, "date" : "2024-01-01", "subcategory" : "Transportation", "account" : "Cash"}
     ] }
--   Tidak ada pengeluaran:
-    { "expenses": [] }
 
 Pesan Teks:
 `;
