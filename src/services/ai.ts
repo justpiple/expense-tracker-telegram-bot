@@ -79,13 +79,11 @@ export async function extractExpensesWithAI({
           },
           message: {
             type: SchemaType.STRING,
-            description: "Pesan dari AI terkait proses ekstraksi.",
+            description: "Pesan yang relevan",
             nullable: true,
           },
         },
         required: ["expenses"],
-        description:
-          "Skema untuk respons JSON yang berisi informasi pengeluaran.", // Deskripsi untuk objek root
       },
     };
 
