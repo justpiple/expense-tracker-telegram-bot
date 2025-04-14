@@ -118,14 +118,14 @@ export const expenseController = {
       getAllAccountNames(),
     ]);
 
-    const expenses = await extractExpensesWithAI({
+    const { expenses, ...result } = await extractExpensesWithAI({
       message,
       categories,
       accounts,
     });
 
-    if (!expenses || expenses.length === 0) {
-      await ctx.reply(BOT_MESSAGES.NOT_EXPENSE_MESSAGE);
+    if (expenses.length === 0) {
+      await ctx.reply(result.message || BOT_MESSAGES.NOT_EXPENSE_MESSAGE);
       return;
     }
 
@@ -185,24 +185,29 @@ export const expenseController = {
 
     const fileData: FileData = { mimeType: file.mimeType, fileUri: file.uri };
 
-    const expenses = await extractExpensesWithAI({
+    const result = await extractExpensesWithAI({
       message: caption,
       categories,
       accounts,
       fileData,
     });
 
-    if (!expenses || expenses.length === 0) {
-      await ctx.reply(BOT_MESSAGES.EXPENSE_FAILURE);
+    if (result.expenses.length === 0) {
+      await ctx.reply(result.message || BOT_MESSAGES.EXPENSE_FAILURE);
       return;
     }
 
-    const expense = expenses[0];
+    const expenses = result.expenses;
 
-    if (!(await validateExpensesAccounts(ctx, expenses, accounts))) return;
+    if (!(await validateExpensesAccounts(ctx, result.expenses, accounts)))
+      return;
 
-    expense.receipt = photoUrl;
+    expenses[0].receipt = photoUrl;
 
-    await expenseProcessing.handleSingleExpense(ctx, expense);
+    if (expenses.length > 1) {
+      await expenseProcessing.handleMultipleExpenses(ctx, expenses);
+    } else {
+      await expenseProcessing.handleSingleExpense(ctx, expenses[0]);
+    }
   },
 };

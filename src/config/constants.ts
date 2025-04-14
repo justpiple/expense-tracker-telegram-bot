@@ -4,22 +4,22 @@ export const EXPENSE_EXTRACTION_PROMPT = (
   categories: string[],
   accounts: string[],
 ) => `
-Anda adalah sistem yang dapat dalam mengekstrak informasi dari pesan teks atau gambar.
-
 Instruksi:
-1.  Baca pesan teks dan perhatikan gambar (jika ada) dengan untuk mengidentifikasi semua informasi pengeluaran yang relevan. Jika pesan teks dan gambar diberikan bersamaan, gabungkan informasi dari kedua sumber untuk mendapatkan detail informasi.
-2.  Untuk setiap pengeluaran, ekstrak detail berikut:
-    * "description": Deskripsi pengeluaran yang jelas dan lengkap dari gambar atau pesan.
-    * "amount": Jumlah pengeluaran dalam angka.
-    * "date": Tanggal pengeluaran dalam format YYYY-MM-DD.
-    * "subcategory": Subkategori pengeluaran. (Jika ada kategori dalam pesan, simpulkan kategori berdasarkan deskripsi. Apabila tetap tidak cocok, buat kategori baru dengan format: new: Nama Kategori.)
-    * "account": Metode pembayaran. Ekstrak informasi metode pembayaran dari pesan teks jika ada dan sesuai dengan daftar yang tersedia. Contoh: jika pesan teks mengatakan 'pakai cash', maka 'account' adalah 'Cash' jika terdapat didaftar akun yang tersedia.
-3.  **PENTING:** Jika pesan mengandung beberapa pengeluaran, pisahkan menjadi objek terpisah dalam array JSON.
-4.  Identifikasi pengeluaran yang berbeda menggunakan kata kunci seperti "dan", "serta", "juga", "lalu", "kemudian" atau frasa gabungan yang mengindikasikan beberapa transaksi.
-5.  Jika pesan atau gambar tidak mengandung informasi pengeluaran, kembalikan array kosong.
+1. Identifikasi informasi pengeluaran relevan dari pesan teks dan gambar (jika ada). Gabungkan informasi dari kedua sumber.
+2. Untuk setiap pengeluaran, ekstrak detail berikut:
+    * "description": Deskripsi lengkap pengeluaran.
+    * "amount": Angka jumlah pengeluaran.
+    * "date": Tanggal pengeluaran dalam format<ctrl3348>-MM-DD.
+    * "subcategory": Subkategori pengeluaran (simpulkan dari deskripsi, buat baru dengan format "new: Nama Kategori" jika tidak cocok dengan daftar).
+    * "account": Metode pembayaran (ekstrak dari pesan teks jika sesuai dengan daftar akun). Contoh: "pakai cash" -> "Cash".
+3. Jika ada beberapa pengeluaran, pisahkan menjadi objek dalam array JSON.
+4. Identifikasi beberapa pengeluaran menggunakan kata kunci seperti "dan", "serta", "juga", "lalu", "kemudian".
+5. **Jika informasi pengeluaran berhasil diekstrak (array \`expenses\` tidak kosong), jangan sertakan atau atur nilai \`message\` menjadi null.**
+6. **Jika tidak ada informasi pengeluaran ditemukan (array \`expenses\` kosong) atau jika pesan teks terindikasi sebagai pertanyaan atau permintaan informasi lain (bukan informasi pengeluaran), isi properti \`message\` dengan pesan yang relevan.**
+7. Kembalikan array kosong untuk \`expenses\` jika tidak ada informasi pengeluaran yang ditemukan dan \`message\` diisi.
 
-Daftar Kategori (subcategory) yang Tersedia: ${categories.join(", ")}
-Daftar Akun (account) pembayaran yang Tersedia: ${accounts.join(", ")}
+Daftar Kategori: ${categories.join(", ")}
+Daftar Akun: ${accounts.join(", ")}
 
 Tanggal Hari Ini: ${new Date().toLocaleDateString("en-CA", {
   timeZone: TIME_ZONE,
@@ -29,15 +29,14 @@ Tanggal Hari Ini: ${new Date().toLocaleDateString("en-CA", {
 })}
 
 Contoh Output:
--   Beberapa pengeluaran:
+- Ada pengeluaran:
     { "expenses": [
-    {"description":"Makan siang di Kantin","amount":75000,"date":"2025-04-04","subcategory":"Food","account":"GoPay"},
-    {"description":"Parkir","amount":10000,"date":"2025-04-04","subcategory":"Transportation","account":"Cash"}
+    {"description":"Makan siang di Kantin","amount":75000,"date":"2025-04-04","subcategory":"Food","account":"GoPay"}
     ] }
--   Tunggal:
-    { "expenses" : [
-    {"description" : "Bensin","amount": 25000, "date" : "2024-01-01", "subcategory" : "Transportation", "account" : "Cash"}
-    ] }
+- Tidak ada pengeluaran (atau pertanyaan):
+    { "expenses": [], "message": "Maaf, saya tidak menemukan informasi pengeluaran dalam pesan ini. Apakah ada yang lain yang bisa saya bantu?" }
+- Pertanyaan pengguna:
+    { "expenses": [], "message": "Saya siap membantu Anda mencatat informasi pengeluaran. Silakan berikan informasinya" }
 
 Pesan Teks:
 `;

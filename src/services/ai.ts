@@ -5,7 +5,7 @@ import {
   SchemaType,
 } from "@google/generative-ai";
 import { GEMINI_API_KEY } from "../config/env";
-import { ExpenseData, AIExpenseResponse } from "../types";
+import { AIExpenseResponse } from "../types";
 import { EXPENSE_EXTRACTION_PROMPT } from "../config/constants";
 import { GoogleAIFileManager } from "@google/generative-ai/server";
 
@@ -32,7 +32,7 @@ export async function extractExpensesWithAI({
   categories,
   accounts,
   fileData,
-}: ExtractExpensesInput): Promise<ExpenseData[]> {
+}: ExtractExpensesInput): Promise<AIExpenseResponse> {
   try {
     const prompt = EXPENSE_EXTRACTION_PROMPT(categories, accounts) + message;
 
@@ -50,17 +50,42 @@ export async function extractExpensesWithAI({
             items: {
               type: SchemaType.OBJECT,
               properties: {
-                description: { type: SchemaType.STRING },
-                amount: { type: SchemaType.NUMBER },
-                date: { type: SchemaType.STRING },
-                subcategory: { type: SchemaType.STRING },
-                account: { type: SchemaType.STRING, nullable: true },
+                description: {
+                  type: SchemaType.STRING,
+                  description: "Deskripsi detail pengeluaran.",
+                },
+                amount: {
+                  type: SchemaType.NUMBER,
+                  description: "Jumlah pengeluaran dalam angka.",
+                },
+                date: {
+                  type: SchemaType.STRING,
+                  description: "Tanggal pengeluaran dalam format YYYY-MM-DD.",
+                },
+                subcategory: {
+                  type: SchemaType.STRING,
+                  description: "Subkategori pengeluaran.",
+                },
+                account: {
+                  type: SchemaType.STRING,
+                  nullable: true,
+                  description: "Metode pembayaran (misalnya: Cash, GoPay).",
+                },
               },
               required: ["description", "amount", "date", "subcategory"],
             },
+            minItems: 0,
+            description: "Array yang berisi daftar pengeluaran.",
+          },
+          message: {
+            type: SchemaType.STRING,
+            description: "Pesan dari AI terkait proses ekstraksi.",
+            nullable: true,
           },
         },
         required: ["expenses"],
+        description:
+          "Skema untuk respons JSON yang berisi informasi pengeluaran.", // Deskripsi untuk objek root
       },
     };
 
@@ -78,14 +103,14 @@ export async function extractExpensesWithAI({
 
     try {
       const parsedResult = JSON.parse(textResult) as AIExpenseResponse;
-      return parsedResult.expenses || [];
+      return parsedResult;
     } catch (error) {
       console.error("Failed to parse Gemini response as JSON", textResult);
-      return [];
+      return { expenses: [] };
     }
   } catch (error) {
     console.error("Error extracting expense data with Gemini:", error);
-    return [];
+    return { expenses: [] };
   }
 }
 

@@ -42,4 +42,5 @@ export interface MultiExpenseResult {
 
 export interface AIExpenseResponse {
   expenses: ExpenseData[];
+  message?: string | null;
 }
