@@ -183,9 +183,10 @@ export const expenseController = {
       getAllAccountNames(),
     ]);
 
+    const fileName = `image/${photo.file_unique_id}-${Date.now()}.jpeg`;
     const storage = await uploadFileFromBuffer(
       photoBuffer,
-      `image/${photo.file_unique_id}-${Date.now()}.jpeg`,
+      fileName,
       "image/jpeg",
     );
     const file = await uploadToGemini(photoBuffer, "image/jpeg");
@@ -207,9 +208,9 @@ export const expenseController = {
     if (!(await validateExpensesAccounts(ctx, result.expenses, accounts)))
       return;
 
-    expenses[0].receipt = `https://firebasestorage.googleapis.com/v0/b/${FIREBASE_BUCKET}/o/${
-      encodeURIComponent(photo.file_unique_id) + ".jpeg"
-    }?alt=media&token=${storage.downloadTokens}`;
+    expenses[0].receipt = `https://firebasestorage.googleapis.com/v0/b/${FIREBASE_BUCKET}/o/${encodeURIComponent(
+      fileName,
+    )}?alt=media&token=${storage.downloadTokens}`;
 
     if (expenses.length > 1) {
       await expenseProcessing.handleMultipleExpenses(ctx, expenses);
