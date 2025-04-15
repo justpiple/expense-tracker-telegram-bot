@@ -99,13 +99,8 @@ export async function extractExpensesWithAI({
 
     const textResult = result.response.text();
 
-    try {
-      const parsedResult = JSON.parse(textResult) as AIExpenseResponse;
-      return parsedResult;
-    } catch (error) {
-      console.error("Failed to parse Gemini response as JSON", textResult);
-      return { expenses: [] };
-    }
+    const parsedResult = JSON.parse(textResult) as AIExpenseResponse;
+    return parsedResult;
   } catch (error) {
     console.error("Error extracting expense data with Gemini:", error);
     return { expenses: [] };

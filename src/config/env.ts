@@ -12,6 +12,7 @@ const requiredEnvVars = [
   "NOTION_DB_ACCOUNTS",
   "NOTION_DB_RECURRING_PAYMENTS",
   "REGISTER_SECRET_CODE",
+  "FIREBASE_BUCKET",
 ];
 
 const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
@@ -28,6 +29,8 @@ export const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 export const REGISTER_SECRET_CODE = process.env.REGISTER_SECRET_CODE!;
 export const REMINDER_SCHEDULE = process.env.REMINDER_SCHEDULE;
 export const TIME_ZONE = process.env.TIME_ZONE;
+export const FIREBASE_BUCKET = process.env.FIREBASE_BUCKET!;
+export const FIREBASE_ID_TOKEN = process.env.FIREBASE_ID_TOKEN;
 
 export const NOTION_DB = {
   EXPENSES: process.env.NOTION_DB_EXPENSES!,

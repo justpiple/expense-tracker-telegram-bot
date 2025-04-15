@@ -12,6 +12,8 @@ import { BOT_MESSAGES } from "../config/constants";
 import { Message, Update } from "@telegraf/types";
 import { messageService } from "../utils/message";
 import { FileData } from "@google/generative-ai";
+import { uploadFileFromBuffer } from "../services/firebaseStorage";
+import { FIREBASE_BUCKET } from "../config/env";
 
 type MessageContext = NarrowedContext<
   Context<Update>,
@@ -153,16 +155,16 @@ export const expenseController = {
       return;
     }
 
-    const photoId = message.photo[message.photo.length - 1]?.file_id;
+    const photo = message.photo[message.photo.length - 1];
 
-    if (!photoId) {
+    if (!photo) {
       await ctx.reply(BOT_MESSAGES.PHOTO_PROCESSING_ERROR);
       return;
     }
 
     await ctx.telegram.sendChatAction(ctx.chat!.id, "typing");
 
-    const fileLink = await ctx.telegram.getFileLink(photoId);
+    const fileLink = await ctx.telegram.getFileLink(photo.file_id);
     const photoUrl = fileLink.href;
 
     const fetchPhoto = await fetch(photoUrl);
@@ -181,10 +183,13 @@ export const expenseController = {
       getAllAccountNames(),
     ]);
 
+    const storage = await uploadFileFromBuffer(
+      photoBuffer,
+      `image/${photo.file_unique_id}.jpeg`,
+      "image/jpeg",
+    );
     const file = await uploadToGemini(photoBuffer, "image/jpeg");
-
     const fileData: FileData = { mimeType: file.mimeType, fileUri: file.uri };
-
     const result = await extractExpensesWithAI({
       message: caption,
       categories,
@@ -202,7 +207,9 @@ export const expenseController = {
     if (!(await validateExpensesAccounts(ctx, result.expenses, accounts)))
       return;
 
-    expenses[0].receipt = photoUrl;
+    expenses[0].receipt = `https://firebasestorage.googleapis.com/v0/b/${FIREBASE_BUCKET}/o/${
+      encodeURIComponent(photo.file_unique_id) + ".jpeg"
+    }?alt=media&token=${storage.downloadTokens}`;
 
     if (expenses.length > 1) {
       await expenseProcessing.handleMultipleExpenses(ctx, expenses);
