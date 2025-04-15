@@ -185,7 +185,7 @@ export const expenseController = {
 
     const storage = await uploadFileFromBuffer(
       photoBuffer,
-      `image/${photo.file_unique_id}.jpeg`,
+      `image/${photo.file_unique_id}-${Date.now()}.jpeg`,
       "image/jpeg",
     );
     const file = await uploadToGemini(photoBuffer, "image/jpeg");
