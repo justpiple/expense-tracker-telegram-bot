@@ -12,8 +12,7 @@ import { BOT_MESSAGES } from "../config/constants";
 import { Message, Update } from "@telegraf/types";
 import { messageService } from "../utils/message";
 import { FileData } from "@google/generative-ai";
-import { uploadFileFromBuffer } from "../services/firebaseStorage";
-import { FIREBASE_BUCKET } from "../config/env";
+import { uploadImageToTelegraph } from "../services/telegraph";
 
 type MessageContext = NarrowedContext<
   Context<Update>,
@@ -23,7 +22,7 @@ type MessageContext = NarrowedContext<
 async function validateExpensesAccounts(
   ctx: Context,
   expenses: ExpenseData[],
-  accounts: string[],
+  accounts: string[]
 ): Promise<boolean> {
   const missingAccounts = expenses.filter((exp) => !exp.account);
   if (missingAccounts.length > 0) {
@@ -37,7 +36,7 @@ async function validateExpensesAccounts(
       const accountId = await findAccountId(expense.account);
       if (!accountId) {
         await ctx.reply(
-          BOT_MESSAGES.ACCOUNT_NOT_FOUND(expense.account, accounts),
+          BOT_MESSAGES.ACCOUNT_NOT_FOUND(expense.account, accounts)
         );
         return false;
       }
@@ -58,7 +57,7 @@ const expenseProcessing = {
         ctx,
         prelimMsg?.message_id,
         expense,
-        result,
+        result
       );
 
       if (
@@ -69,7 +68,7 @@ const expenseProcessing = {
         setTimeout(() => {
           messageService.sendSubcategoryWarningMessage(
             ctx,
-            expense.subcategory!,
+            expense.subcategory!
           );
         }, 1000);
       }
@@ -80,10 +79,10 @@ const expenseProcessing = {
 
   async handleMultipleExpenses(
     ctx: Context,
-    expenses: ExpenseData[],
+    expenses: ExpenseData[]
   ): Promise<void> {
     const msg = await ctx.reply(
-      `⏳ Memproses ${expenses.length} pengeluaran...`,
+      `⏳ Memproses ${expenses.length} pengeluaran...`
     );
 
     const results: ExpenseProcessResult[] = [];
@@ -102,7 +101,7 @@ const expenseProcessing = {
       ctx,
       msg.message_id,
       expenses,
-      summary,
+      summary
     );
   },
 };
@@ -171,7 +170,7 @@ export const expenseController = {
 
     if (!fetchPhoto.ok) {
       throw new Error(
-        `Failed to fetch Photo: Status code ${fetchPhoto.status}`,
+        `Failed to fetch Photo: Status code ${fetchPhoto.status}`
       );
     }
 
@@ -183,13 +182,14 @@ export const expenseController = {
       getAllAccountNames(),
     ]);
 
-    const fileName = `image/${photo.file_unique_id}-${Date.now()}.jpeg`;
-    const storage = await uploadFileFromBuffer(
-      photoBuffer,
-      fileName,
-      "image/jpeg",
-    );
-    const file = await uploadToGemini(photoBuffer, "image/jpeg");
+    const [file, receiptUrl] = await Promise.all([
+      uploadToGemini(photoBuffer, "image/jpeg"),
+      uploadImageToTelegraph(photoBuffer, "image/jpeg").catch((error) => {
+        console.error("Failed to upload receipt to telegra.ph:", error);
+        return undefined;
+      }),
+    ]);
+
     const fileData: FileData = { mimeType: file.mimeType, fileUri: file.uri };
     const result = await extractExpensesWithAI({
       message: caption,
@@ -208,9 +208,9 @@ export const expenseController = {
     if (!(await validateExpensesAccounts(ctx, result.expenses, accounts)))
       return;
 
-    expenses[0].receipt = `https://firebasestorage.googleapis.com/v0/b/${FIREBASE_BUCKET}/o/${encodeURIComponent(
-      fileName,
-    )}?alt=media&token=${storage.downloadTokens}`;
+    if (receiptUrl && expenses.length > 0) {
+      expenses[0].receipt = receiptUrl;
+    }
 
     if (expenses.length > 1) {
       await expenseProcessing.handleMultipleExpenses(ctx, expenses);
