@@ -12,7 +12,7 @@ import { GoogleAIFileManager } from "@google/generative-ai/server";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const fileManager = new GoogleAIFileManager(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
-  model: GEMINI_MODEL ?? "gemini-3-flash",
+  model: GEMINI_MODEL ?? "gemini-3-flash-preview",
 });
 
 type ExtractExpensesInput =
