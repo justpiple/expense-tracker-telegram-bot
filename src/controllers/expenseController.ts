@@ -12,7 +12,7 @@ import { BOT_MESSAGES } from "../config/constants";
 import { Message, Update } from "@telegraf/types";
 import { messageService } from "../utils/message";
 import { FileData } from "@google/generative-ai";
-import { uploadImageToTelegraph } from "../services/telegraph";
+import { uploadImageToImgbb } from "../services/imgbb";
 
 type MessageContext = NarrowedContext<
   Context<Update>,
@@ -184,8 +184,8 @@ export const expenseController = {
 
     const [file, receiptUrl] = await Promise.all([
       uploadToGemini(photoBuffer, "image/jpeg"),
-      uploadImageToTelegraph(photoBuffer, "image/jpeg").catch((error) => {
-        console.error("Failed to upload receipt to telegra.ph:", error);
+      uploadImageToImgbb(photoBuffer, "image/jpeg").catch((error) => {
+        console.error("Failed to upload receipt to imgbb:", error);
         return undefined;
       }),
     ]);
