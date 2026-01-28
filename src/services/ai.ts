@@ -4,14 +4,16 @@ import {
   GoogleGenerativeAI,
   SchemaType,
 } from "@google/generative-ai";
-import { GEMINI_API_KEY } from "../config/env";
+import { GEMINI_API_KEY, GEMINI_MODEL } from "../config/env";
 import { AIExpenseResponse } from "../types";
 import { EXPENSE_EXTRACTION_PROMPT } from "../config/constants";
 import { GoogleAIFileManager } from "@google/generative-ai/server";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const fileManager = new GoogleAIFileManager(GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+const model = genAI.getGenerativeModel({
+  model: GEMINI_MODEL ?? "gemini-3-flash",
+});
 
 type ExtractExpensesInput =
   | {
