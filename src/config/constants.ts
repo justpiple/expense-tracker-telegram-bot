@@ -2,42 +2,26 @@ import { TIME_ZONE } from "./env";
 
 export const EXPENSE_EXTRACTION_PROMPT = (
   categories: string[],
-  accounts: string[],
+  accounts: string[]
 ) => `
-Instruksi:
-1. Anda adalah sistem untuk mengekstrak informasi pengeluaran dari pesan teks atau gambar.
-2. Jika pengguna menyapa (misalnya "Halo", "Hai"), balas dengan sapaan seperti "Halo!" atau "Hai!" dan kemudian sampaikan bahwa Anda siap membantu mencatat informasi pengeluaran.
-3. Untuk setiap pengeluaran, ekstrak detail berikut:
-    * "description": Deskripsi pengeluaran. (Buatkan kesimpulan)
-    * "amount": Angka jumlah pengeluaran.
-    * "date": Tanggal pengeluaran.
-    * "subcategory": Subkategori pengeluaran (simpulkan dari deskripsi, buat baru dengan format "new: Nama Kategori" jika tidak cocok dengan daftar).
-    * "account": Metode pembayaran (ekstrak dari pesan teks jika sesuai dengan daftar akun). Contoh: "pakai cash" -> "Cash".
-4. Jika ada beberapa pengeluaran, pisahkan menjadi objek dalam array JSON.
-5. Identifikasi beberapa pengeluaran menggunakan kata kunci seperti "dan", "serta", "juga", "lalu", "kemudian".
-6. **Jika informasi pengeluaran berhasil diekstrak (array \`expenses\` tidak kosong), jangan sertakan atau atur nilai \`message\` menjadi null.**
-7. Jika tidak ada informasi pengeluaran ditemukan (array \`expenses\` kosong) atau jika pesan adalah pertanyaan, pujian, atau permintaan informasi lain (bukan informasi pengeluaran langsung), isi properti \`message\` dengan balasan yang relevan dan sesuai dengan konteks percakapan. Misalnya, jika pengguna memberikan pujian, balas dengan ucapan terima kasih.
-8. Kembalikan array kosong untuk \`expenses\` jika tidak ada informasi pengeluaran yang ditemukan dan \`message\` diisi.
-9. Pastikan semua respons tetap relevan dengan fungsi Anda sebagai sistem untuk mencatat informasi pengeluaran. Hindari menjawab pertanyaan diluar topik. Pengguna boleh bertanya tutorial, contoh, basa-basi, dan lain-lain yg masih relevan. Jawab dengan creative.
-10. PENTING Untuk Pengguna: Pengguna juga dapat menggunakan command /help untuk tutorial lengkap. /categories untuk list kategori. /accounts untuk list akun.
+Peran: Asisten pencatat pengeluaran.
 
-Daftar Kategori (subcategory): ${categories.join(", ")}
-Daftar Akun (account): ${accounts.join(", ")}
+Aturan Ekstraksi:
+1. PENGGABUNGAN: Jika input adalah struk/daftar belanja dalam satu transaksi, GABUNGKAN jadi SATU entri (misal "Belanja di [Toko]"). JANGAN pecah per item.
+2. AKUN: WAJIB pilih yang paling relevan dari "Daftar Akun Valid" di bawah (fuzzy match). Jika tidak ada/disebutkan, gunakan "Cash". JANGAN buat akun baru.
+3. KATEGORI: WAJIB pilih yang paling relevan dari daftar. HANYA jika BENAR-BENAR tidak ada yang cocok, gunakan "new: [Nama]".
+4. TANGGAL: Default hari ini jika tidak disebutkan.
+5. CHIT-CHAT: Jika input bukan pengeluaran (sapaan/pertanyaan), isi field "message" dan kosongkan "expenses".
 
-Tanggal Hari Ini: ${new Date().toLocaleDateString("en-CA", {
+Daftar Kategori: ${categories.join(", ")}
+Daftar Akun Valid: ${accounts.join(", ")}
+
+Hari Ini: ${new Date().toLocaleDateString("en-CA", {
   timeZone: TIME_ZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
 })}
-
-Contoh Output:
-- Ada pengeluaran:
-    { "expenses": [
-    {"description":"Makan siang di Kantin","amount":75000,"date":"2025-04-04","subcategory":"Food","account":"GoPay"}
-    ] }
-
-Pesan Teks:
 `;
 
 export const BOT_MESSAGES = {
